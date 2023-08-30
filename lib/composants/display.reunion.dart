@@ -2,6 +2,10 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
+import 'package:kasumi/models/participant.model.dart';
+import 'package:kasumi/models/participation.model.dart';
+import 'package:kasumi/services/connexion.service.dart';
+import 'package:kasumi/services/participation.service.dart';
 
 import '../models/reunion.model.dart';
 import '../pages/reunion/reunion.view.dart';
@@ -18,6 +22,7 @@ class DisplayReunion extends StatefulWidget {
 }
 
 class _DisplayReunionState extends State<DisplayReunion> {
+  TextEditingController codeCtrl = TextEditingController();
   String formattedDate = "";
   Duration duree = Duration(seconds: 0);
   int _start = 0;
@@ -40,6 +45,52 @@ class _DisplayReunionState extends State<DisplayReunion> {
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        if (codeCtrl.text == widget.reunion.code) {
+          Participant participant = Participant();
+          participant.utilisateur = ConnexionService.utilisateur!;
+          participant.role = "PARTICIPANT";
+          participant.tempsDeParole = 0;
+          Participation participation = Participation(participant, widget.reunion);
+          ParticipationService().save(participation).then((value) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => ReunionView(
+                  reunion: widget.reunion,
+                ),
+              ),
+            );
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("le code est incorrect"),
+          ));
+        }
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Code de la réunion"),
+      content: TextFormField(controller: codeCtrl),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   @override
@@ -67,13 +118,30 @@ class _DisplayReunionState extends State<DisplayReunion> {
         ),
         trailing: Text(_printDuration(duree)),
         onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) => ReunionView(
-                reunion: widget.reunion,
+          if (ConnexionService.utilisateur!.id == widget.reunion.utilisateur.id) {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => ReunionView(
+                  reunion: widget.reunion,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            String id = widget.reunion.id + "--" + ConnexionService.utilisateur!.id;
+            ParticipationService().getOne(id).then((value) {
+              if (value != null) {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => ReunionView(
+                      reunion: widget.reunion,
+                    ),
+                  ),
+                );
+              } else {
+                showAlertDialog(context);
+              }
+            });
+          }
         },
       ),
     );

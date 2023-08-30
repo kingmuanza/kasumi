@@ -11,8 +11,8 @@ class ConnexionPage extends StatefulWidget {
 }
 
 class _ConnexionPageState extends State<ConnexionPage> {
-  TextEditingController loginCtrl = TextEditingController(text: "admin");
-  TextEditingController passeCtrl = TextEditingController(text: "admin");
+  TextEditingController loginCtrl = TextEditingController(text: "melo");
+  TextEditingController passeCtrl = TextEditingController(text: "melo");
   bool loading = false;
   @override
   Widget build(BuildContext context) {

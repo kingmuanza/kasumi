@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kasumi/composants/display.temps.ecoulee.dart';
+import 'package:kasumi/models/participant.model.dart';
+import 'package:kasumi/models/participation.model.dart';
 import 'package:kasumi/models/utilisateur.model.dart';
+import 'package:kasumi/services/participation.service.dart';
 
 import '../../composants/display.orateur.dart';
 import '../../models/reunion.model.dart';
@@ -14,12 +17,34 @@ class ReunionView extends StatefulWidget {
 }
 
 class _ReunionViewState extends State<ReunionView> {
-  List<Utilisateur> orateurs = [];
+  List<Participation> orateurs = [];
+  List<Participation> participations = [];
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    orateurs.add(widget.reunion.utilisateur);
+    Participant participant = Participant();
+    participant.utilisateur = widget.reunion.utilisateur;
+    participant.role = "Modérateur".toUpperCase();
+    Participation participation = Participation(participant, widget.reunion);
+    orateurs.add(participation);
+    ParticipationService().getAllFromReunion(widget.reunion).then((resultats) {
+      participations = resultats;
+      participations.forEach((p) {
+        if (p.parle) {
+          this.orateurs.add(p);
+        }
+      });
+      setState(() {});
+    });
+  }
+
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 
   @override
@@ -44,8 +69,23 @@ class _ReunionViewState extends State<ReunionView> {
               scrollDirection: Axis.horizontal,
               itemCount: orateurs.length,
               itemBuilder: (context, index) {
-                Utilisateur utilisateur = orateurs[index];
-                return DisplayOrateur(utilisateur: utilisateur);
+                Participation participation = orateurs[index];
+                return InkWell(
+                  child: DisplayOrateur(participation: participation),
+                  onTap: () {
+                    if (participation.participant.role != "Modérateur".toUpperCase()) {
+                      if (orateurs.indexOf(participation) != -1) {
+                        this.orateurs.remove(participation);
+                        participation.parle = false;
+                        participation.finParole = DateTime.now();
+                        participation.tempsDeParole = DateTime.now().difference(participation.debutParole).inSeconds;
+                        ParticipationService().save(participation).then((value) {
+                          setState(() {});
+                        });
+                      }
+                    }
+                  },
+                );
               },
             ),
           ),
@@ -63,21 +103,33 @@ class _ReunionViewState extends State<ReunionView> {
           ),
           Expanded(
             child: Column(
-              children: ListTile.divideTiles(color: Colors.grey, tiles: [
-                ListTile(
-                  title: Text(
-                    "Premier participant",
-                  ),
-                  subtitle: Text("Temps de parole : 00:00"),
-                  trailing: Text("00:45"),
-                ),
-                ListTile(
-                  title: Text(
-                    "Second participant",
-                  ),
-                  subtitle: Text("Temps de parole : 00:00"),
-                ),
-              ]).toList(),
+              children: ListTile.divideTiles(
+                color: Colors.grey,
+                tiles: List.generate(participations.length, (index) {
+                  Participation participation = participations[index];
+                  Duration duree = Duration(seconds: participation.tempsDeParole);
+                  return ListTile(
+                    title: Text(
+                      participation.participant.utilisateur.nom,
+                    ),
+                    subtitle: Text("Temps de parole : ${_printDuration(duree)}"),
+                    trailing: Icon(
+                      Icons.mic,
+                      color: Colors.green,
+                    ),
+                    onTap: () {
+                      if (orateurs.indexOf(participation) == -1) {
+                        participation.parle = true;
+                        participation.debutParole = DateTime.now();
+                        this.orateurs.add(participation);
+                        ParticipationService().save(participation).then((value) {
+                          setState(() {});
+                        });
+                      }
+                    },
+                  );
+                }),
+              ).toList(),
             ),
           ),
         ],
