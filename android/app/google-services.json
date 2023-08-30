@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "614836085521",
+    "project_id": "kasumi-bass",
+    "storage_bucket": "kasumi-bass.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614836085521:android:f484ce0d93388f54f522b0",
+        "android_client_info": {
+          "package_name": "cm.bass.kasumi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "614836085521-m0lq450i7b6felm3g64af7ru6mp85mto.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBS10gaV4_B-6b_Y_rRNAyyNf79BoMp_tI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "614836085521-m0lq450i7b6felm3g64af7ru6mp85mto.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

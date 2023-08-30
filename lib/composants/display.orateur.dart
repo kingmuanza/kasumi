@@ -16,11 +16,11 @@ class DisplayOrateur extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 40,
-            width: 40,
+            height: 60,
+            width: 60,
             decoration: BoxDecoration(
               color: Colors.green,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(30),
             ),
             margin: EdgeInsets.only(
               top: 20,
@@ -30,8 +30,11 @@ class DisplayOrateur extends StatelessWidget {
             margin: EdgeInsets.only(
               top: 10,
             ),
-            child: Text("Muanza K.."),
-            height: 20,
+            child: Text(
+              "Muanza Kangudie",
+              style: TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
           ),
           Container(
             margin: EdgeInsets.only(
@@ -39,16 +42,17 @@ class DisplayOrateur extends StatelessWidget {
             ),
             child: Text(
               "Modérateur",
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            height: 20,
           ),
           Container(
             margin: EdgeInsets.only(
               top: 0,
             ),
             child: Text("00:00"),
-            height: 20,
           ),
         ],
       ),

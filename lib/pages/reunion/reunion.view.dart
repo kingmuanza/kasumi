@@ -18,6 +18,17 @@ class _ReunionViewState extends State<ReunionView> {
       appBar: AppBar(
         title: Text(widget.reunion.nom),
         backgroundColor: Colors.green,
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: Text(
+              "00:00:00",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -36,8 +47,13 @@ class _ReunionViewState extends State<ReunionView> {
           Container(
             width: double.infinity,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text("Participants"),
+              padding: const EdgeInsets.only(left: 16.0, top: 16.0),
+              child: Text(
+                "Participants",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
           Expanded(
