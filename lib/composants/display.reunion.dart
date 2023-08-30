@@ -26,13 +26,22 @@ class _DisplayReunionState extends State<DisplayReunion> {
   String formattedDate = "";
   Duration duree = Duration(seconds: 0);
   int _start = 0;
+  late Timer _timer;
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _timer.cancel();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     formattedDate = DateFormat('yyyy-MM-dd hh:mm').format(widget.reunion.debut);
     super.initState();
     _start = DateTime.now().difference(widget.reunion.debut).inSeconds;
-    Timer _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+    _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       print(_start);
       _start++;
       duree = Duration(seconds: _start);

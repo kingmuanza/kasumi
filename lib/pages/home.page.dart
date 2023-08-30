@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:kasumi/models/reunion.model.dart';
+import 'package:kasumi/pages/connexion.page.dart';
 import 'package:kasumi/pages/reunion/reunion.edit.dart';
 import 'package:kasumi/pages/reunion/reunion.view.dart';
 import 'package:kasumi/services/connexion.service.dart';
@@ -56,7 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             width: 100,
                             child: CircleAvatar(
                               backgroundImage: NetworkImage(ConnexionService.utilisateur!.photo),
-                              backgroundColor: Colors.transparent,
+                              backgroundColor: Colors.green,
                             ),
                           ),
                           Padding(
@@ -73,6 +74,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
               ),
+            ),
+            ListTile(
+              title: Text("Déconnexion"),
+              leading: Icon(Icons.logout),
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => ConnexionPage(),
+                  ),
+                );
+              },
             ),
           ],
         ),

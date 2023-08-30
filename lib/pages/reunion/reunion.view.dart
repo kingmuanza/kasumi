@@ -3,8 +3,10 @@ import 'package:kasumi/composants/display.temps.ecoulee.dart';
 import 'package:kasumi/models/participant.model.dart';
 import 'package:kasumi/models/participation.model.dart';
 import 'package:kasumi/models/utilisateur.model.dart';
+import 'package:kasumi/services/connexion.service.dart';
 import 'package:kasumi/services/participation.service.dart';
-
+import 'dart:async';
+import 'package:intl/intl.dart';
 import '../../composants/display.orateur.dart';
 import '../../models/reunion.model.dart';
 
@@ -19,24 +21,44 @@ class ReunionView extends StatefulWidget {
 class _ReunionViewState extends State<ReunionView> {
   List<Participation> orateurs = [];
   List<Participation> participations = [];
+  Participation? maParticipation;
+  late Timer _timer;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  refresh() {
     Participant participant = Participant();
     participant.utilisateur = widget.reunion.utilisateur;
     participant.role = "Modérateur".toUpperCase();
     Participation participation = Participation(participant, widget.reunion);
-    orateurs.add(participation);
     ParticipationService().getAllFromReunion(widget.reunion).then((resultats) {
+      this.orateurs = [];
+      orateurs.add(participation);
       participations = resultats;
       participations.forEach((p) {
         if (p.parle) {
           this.orateurs.add(p);
         }
+        if (p.participant.utilisateur.id == ConnexionService.utilisateur!.id) {
+          maParticipation = p;
+        }
       });
       setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _timer.cancel();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    refresh();
+    _timer = Timer.periodic(Duration(seconds: 10), (Timer timer) {
+      refresh();
     });
   }
 
@@ -73,15 +95,18 @@ class _ReunionViewState extends State<ReunionView> {
                 return InkWell(
                   child: DisplayOrateur(participation: participation),
                   onTap: () {
-                    if (participation.participant.role != "Modérateur".toUpperCase()) {
-                      if (orateurs.indexOf(participation) != -1) {
-                        this.orateurs.remove(participation);
-                        participation.parle = false;
-                        participation.finParole = DateTime.now();
-                        participation.tempsDeParole = DateTime.now().difference(participation.debutParole).inSeconds;
-                        ParticipationService().save(participation).then((value) {
-                          setState(() {});
-                        });
+                    if (ConnexionService.utilisateur!.id == widget.reunion.utilisateur.id) {
+                      if (participation.participant.role != "Modérateur".toUpperCase()) {
+                        if (orateurs.indexOf(participation) != -1) {
+                          this.orateurs.remove(participation);
+                          participation.parle = false;
+                          participation.veutParler = false;
+                          participation.finParole = DateTime.now();
+                          participation.tempsDeParole += DateTime.now().difference(participation.debutParole).inSeconds;
+                          ParticipationService().save(participation).then((value) {
+                            setState(() {});
+                          });
+                        }
                       }
                     }
                   },
@@ -109,22 +134,29 @@ class _ReunionViewState extends State<ReunionView> {
                   Participation participation = participations[index];
                   Duration duree = Duration(seconds: participation.tempsDeParole);
                   return ListTile(
+                    tileColor: maParticipation != null && maParticipation!.id == participation.id ? Colors.green.withOpacity(0.1) : Colors.white,
                     title: Text(
                       participation.participant.utilisateur.nom,
+                      style: TextStyle(
+                        fontWeight: maParticipation != null && maParticipation!.id == participation.id ? FontWeight.bold : FontWeight.normal,
+                      ),
                     ),
                     subtitle: Text("Temps de parole : ${_printDuration(duree)}"),
                     trailing: Icon(
                       Icons.mic,
-                      color: Colors.green,
+                      color: participation.veutParler ? Colors.green : Colors.grey,
                     ),
                     onTap: () {
-                      if (orateurs.indexOf(participation) == -1) {
-                        participation.parle = true;
-                        participation.debutParole = DateTime.now();
-                        this.orateurs.add(participation);
-                        ParticipationService().save(participation).then((value) {
-                          setState(() {});
-                        });
+                      if (ConnexionService.utilisateur!.id == widget.reunion.utilisateur.id) {
+                        if (orateurs.indexOf(participation) == -1) {
+                          participation.veutParler = false;
+                          participation.parle = true;
+                          participation.debutParole = DateTime.now();
+                          this.orateurs.add(participation);
+                          ParticipationService().save(participation).then((value) {
+                            setState(() {});
+                          });
+                        }
                       }
                     },
                   );
@@ -134,11 +166,30 @@ class _ReunionViewState extends State<ReunionView> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green,
-        onPressed: () {},
-        child: Icon(Icons.mic),
-      ),
+      floatingActionButton: ConnexionService.utilisateur!.id == widget.reunion.utilisateur.id
+          ? Container(
+              width: 0,
+              height: 0,
+            )
+          : maParticipation != null && maParticipation!.parle
+              ? Container(
+                  width: 0,
+                  height: 0,
+                )
+              : FloatingActionButton(
+                  backgroundColor: Colors.green,
+                  onPressed: () {
+                    print("Demander la parole");
+                    if (!maParticipation!.veutParler) {
+                      maParticipation!.veutParler = true;
+                      maParticipation!.veutParlerDate = DateTime.now();
+                      ParticipationService().save(maParticipation!).then((f) {
+                        refresh();
+                      });
+                    }
+                  },
+                  child: Icon(Icons.mic),
+                ),
     );
   }
 }
