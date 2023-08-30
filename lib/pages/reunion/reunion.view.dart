@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kasumi/composants/display.temps.ecoulee.dart';
+import 'package:kasumi/models/utilisateur.model.dart';
 
 import '../../composants/display.orateur.dart';
 import '../../models/reunion.model.dart';
@@ -12,6 +14,14 @@ class ReunionView extends StatefulWidget {
 }
 
 class _ReunionViewState extends State<ReunionView> {
+  List<Utilisateur> orateurs = [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    orateurs.add(widget.reunion.utilisateur);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,14 +29,8 @@ class _ReunionViewState extends State<ReunionView> {
         title: Text(widget.reunion.nom),
         backgroundColor: Colors.green,
         actions: [
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              "00:00:00",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
+          TempsEcouleeReunion(
+            reunion: widget.reunion,
           ),
         ],
       ),
@@ -38,9 +42,10 @@ class _ReunionViewState extends State<ReunionView> {
             color: Colors.grey.shade200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 3,
+              itemCount: orateurs.length,
               itemBuilder: (context, index) {
-                return DisplayOrateur();
+                Utilisateur utilisateur = orateurs[index];
+                return DisplayOrateur(utilisateur: utilisateur);
               },
             ),
           ),

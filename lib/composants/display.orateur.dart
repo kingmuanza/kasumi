@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:kasumi/models/utilisateur.model.dart';
 
-class DisplayOrateur extends StatelessWidget {
+class DisplayOrateur extends StatefulWidget {
+  final Utilisateur utilisateur;
   const DisplayOrateur({
     super.key,
+    required this.utilisateur,
   });
 
+  @override
+  State<DisplayOrateur> createState() => _DisplayOrateurState();
+}
+
+class _DisplayOrateurState extends State<DisplayOrateur> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -12,6 +20,7 @@ class DisplayOrateur extends StatelessWidget {
       width: 100,
       margin: EdgeInsets.only(
         right: 20,
+        left: 20,
       ),
       child: Column(
         children: [
@@ -31,7 +40,7 @@ class DisplayOrateur extends StatelessWidget {
               top: 10,
             ),
             child: Text(
-              "Muanza Kangudie",
+              widget.utilisateur.nom,
               style: TextStyle(fontSize: 12),
               textAlign: TextAlign.center,
             ),

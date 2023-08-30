@@ -7,7 +7,6 @@ class ReunionService {
     final querySnapshot = await db.collection("reunions").get();
 
     List<Reunion> reunions = [];
-    // List<dynamic> reunionsMap = await parseJsonFromAssets('assets/json/reunions.json');
     List<dynamic> reunionsMap = [];
 
     for (var docSnapshot in querySnapshot.docs) {

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:kasumi/models/reunion.model.dart';
 import 'package:kasumi/pages/reunion/reunion.edit.code.dart';
+import 'package:kasumi/services/connexion.service.dart';
 import 'package:kasumi/services/reunion.service.dart';
 
 class ReunionEdit extends StatefulWidget {
@@ -50,6 +51,7 @@ class _ReunionEditState extends State<ReunionEdit> {
                           Reunion reunion = Reunion.create(nom);
                           reunion.code = "" + randomNumber.toString();
                           reunion.id = "" + randomNumber.toString();
+                          reunion.utilisateur = ConnexionService.utilisateur!;
                           ReunionService().save(reunion).then((value) {
                             loading = false;
                             setState(() {});

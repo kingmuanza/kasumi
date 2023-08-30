@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:kasumi/models/reunion.model.dart';
+import 'package:kasumi/pages/connexion.page.dart';
 import 'package:kasumi/pages/reunion/reunion.view.dart';
 
 import 'firebase_options.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
           buttonColor: Colors.green,
         ),
       ),
-      home: MyHomePage(),
+      home: ConnexionPage(),
     );
   }
 }

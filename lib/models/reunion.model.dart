@@ -1,9 +1,14 @@
+import 'package:kasumi/models/utilisateur.model.dart';
+
 class Reunion {
   String id = "";
   String nom = "";
   String code = "";
   bool terminee = false;
   DateTime debut = DateTime.now();
+  Utilisateur utilisateur = Utilisateur.create("Aucun utilisateur");
+
+  Reunion();
 
   Reunion.create(String leNom) {
     nom = leNom;
@@ -19,6 +24,7 @@ class Reunion {
     terminee = json["terminee"] ?? false;
     print("nom :" + nom);
     debut = json["debut"] != null ? DateTime.parse(json["debut"]) : DateTime.now();
+    utilisateur = json["utilisateur"] != null ? Utilisateur.fromJSON(json["utilisateur"]) : Utilisateur.create("Aucun utilisateur");
   }
 
   toJSON() {
@@ -28,6 +34,7 @@ class Reunion {
       "nom": nom,
       "terminee": terminee,
       "debut": debut.toIso8601String(),
+      "utilisateur": utilisateur.toJSON(),
     };
   }
 }
